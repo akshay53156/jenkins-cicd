@@ -65,7 +65,7 @@ pipeline {
                     git config user.email "akshay53156@gmail.com"
                     git config user.name "akshay53156"
                     BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    sed -i "s|image: .*|image: akshay53156/ultimate-cicd:${BUILD_NUMBER}|g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                     
                     grep replaceImageTag java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                     cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
