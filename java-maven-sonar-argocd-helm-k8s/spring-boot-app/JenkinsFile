@@ -52,11 +52,51 @@ pipeline {
         }
       }
     }
+
+    stage('Debug Deployment') {
+        environment {
+            GIT_REPO_NAME = "jenkins-cicd"
+            GIT_USER_NAME = "akshay53156"
+        }
+        steps {
+            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                sh '''
+                    pwd
+
+                    echo "===== JENKINSFILE VERSION ====="
+
+                    grep -n "sed -i" Jenkinsfile || true
+
+                    echo "===== DEPLOYMENT BEFORE ====="
+
+                    cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+                    BUILD_NUMBER=${BUILD_NUMBER}
+
+                    sed -i "s|image: .*|image: akshay53156/ultimate-cicd:${BUILD_NUMBER}|g" \
+                    java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    
+                    echo "===== GIT STATUS ====="
+                    git status
+
+                    echo "===== DEPLOYMENT AFTER ====="
+
+                    cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+                    echo "===== GIT DIFF ====="
+
+                    git diff
+                '''
+            }
+        }
+    }
+
     stage('Update Deployment File') {
         environment {
             GIT_REPO_NAME = "jenkins-cicd"
             GIT_USER_NAME = "akshay53156"
         }
+
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
@@ -66,10 +106,6 @@ pipeline {
                     git config user.name "akshay53156"
                     BUILD_NUMBER=${BUILD_NUMBER}
                     sed -i "s|image: .*|image: akshay53156/ultimate-cicd:${BUILD_NUMBER}|g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    
-                    grep replaceImageTag java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git diff
                     
                     git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
