@@ -18,4 +18,4 @@ spec:
       - name: spring-boot-app
         image: akshay53156/ultimate-cicd:20
         ports:
-        - containerPort: 9000
+        - containerPort: 9010
